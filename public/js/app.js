@@ -3,11 +3,29 @@
   no-undef, jsx-a11y/label-has-for
 */
 class TimersDashboard extends React.Component {
+	state = {
+		timers: [
+			{
+				title: 'Yo Mr. White!',
+				project: 'Breaking Bad',
+				id: uuid.v4(),
+				elapsed: 545698,
+				runningSince: Date.now(),
+			},
+			{
+				title: 'Bimbarla',
+				project: 'Bimbi Escobar',
+				id: uuid.v4(),
+				elapsed: 889912,
+				runningSince: null,
+			}
+		]
+	}
   render() {
     return (
       <div className='ui three column centered grid'>
         <div className='column'>
-          <EditableTimerList />
+          <EditableTimerList timers={this.state.timers} />
           <ToggleableTimerForm
             isOpen={true}
           />
@@ -37,22 +55,20 @@ class ToggleableTimerForm extends React.Component {
 
 class EditableTimerList extends React.Component {
   render() {
+  	const timers = this.props.timers.map((timer) => (
+			<EditableTimer
+				key = {timer.id}
+				id = {timer.id}
+		    title={timer.title}
+		    project={timer.project}
+		    elapsed={timer.elapsed}
+		    runningSince={timer.runningSince}
+		    editFormOpen={false}
+	  	/>
+		));
     return (
       <div id='timers'>
-        <EditableTimer
-          title='Learn React'
-          project='Web Domination'
-          elapsed='8986300'
-          runningSince={null}
-          editFormOpen={false}
-        />
-        <EditableTimer
-          title='Learn extreme ironing'
-          project='World Domination'
-          elapsed='3890985'
-          runningSince={null}
-          editFormOpen={true}
-        />
+      	{timers}
       </div>
     );
   }
