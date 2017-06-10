@@ -813,6 +813,131 @@ return (
 // look unnatural. It would jump unevenly between values. Selecting an interval that’s too low would 
 // just be an unnecessary amount of work. A 50 ms interval looks good to humans and is ages in computerland.
 
+// Add start and stop functionality
+// The action button at the bottom of each timer should display “Start” if the timer is paused and “Stop” 
+// if the timer is running. It should also propagate events when clicked, depending on if the timer is
+//  being stopped or started.
+// We could build all of this functionality into Timer.
+// We could have Timer decide to render one HTML snippet or another depending on if it is running.
+// But that would be adding more responsibility and complexity to Timer. Instead, 
+// let’s make the button its own React component.
+
+// Add timer action events to Timer,
+// Let’s modify Timer, anticipating a new component called TimerActionButton.
+// This button just needs to know if the timer is running. It also needs to be able to propagate two events,
+// onStartClick() and onStopClick(). These events will eventually need to make it all the way up
+//  to TimersDashboard, which can modify runningSince on the timer.
+
+// We use the same technique used in other click-handlers: onClick on the HTML element specifies
+// a handler function in the component that invokes a prop-function, passing in the timer’s id.
+// We use !! here to derive the boolean prop timerIsRunning for TimerActionButton. 
+// !! returns false when runningSince is null.
+
+
+// Create TimerActionButton
+
+class TimerActionButton extends React.Component {
+	render() {
+		if (this.props.timerIsRunning) {
+			return (
+				<div 
+					className='ui bottom attached red basic button'
+					onClick={this.props.onStopClick}>
+					Stop
+				</div>
+				)
+		} else {
+			return (
+				<div 
+					className='ui bottom attached green basic button'
+					onClick={this.props.onStartClick}>
+					Start
+				</div>
+			)
+		}
+	}
+}
+
+// We render one HTML snippet or another based on this.props.timerIsRunning.
+// You know the drill. Now we run these events up the component hierarchy, all the way up to
+// TimersDashboard where we’re managing state:
+
+// Run the events through EditableTimer and EditableTimerList
+
+// Inside EditableTimer
+
+onStartClick={this.props.onStartClick} 
+onStopClick={this.props.onStopClick}
+
+// EditableTimerList
+
+onStartClick={this.props.onStartClick} 
+onStopClick={this.props.onStopClick}
+
+// Finally, we define these functions in TimersDashboard. 
+// They should hunt through the state timers array using map, setting runningSince appropriately
+// when they find the matching timer.
+// First we define the handling functions:
+
+handleStartClick = (timerId) => {
+    this.startTimer(timerId);
+};
+  handleStopClick = (timerId) => {
+    this.stopTimer(timerId);
+};
+
+startTimer = (timerId) => {
+    const now = Date.now();
+    this.setState({
+      timers: this.state.timers.map((timer) => {
+        if (timer.id === timerId) {
+          return Object.assign({}, timer, {
+            runningSince: now,
+          });
+        } else {
+          return timer;
+			} 
+		}),
+	}); 
+};
+
+stopTimer = (timerId) => {
+    const now = Date.now();
+    this.setState({
+      timers: this.state.timers.map((timer) => {
+        if (timer.id === timerId) {
+          const lastElapsed = now - timer.runningSince;
+          return Object.assign({}, timer, {
+            elapsed: timer.elapsed + lastElapsed,
+            runningSince: null,
+          });
+        } else {
+          return timer;
+				} 
+		}),
+	}); 
+};
+
+render() {
+    return (
+      <div className='ui three column centered grid'>
+        <div className='column'>
+          <EditableTimerList 
+          	timers={this.state.timers}
+          	onFormSubmit={this.handleEditFormSubmit}
+          	onTrashClick={this.handleTrashClick}
+          	onStartClick={this.handleStartClick}
+          	onStopClick={this.handleStopClick} />
+          <ToggleableTimerForm
+          	onFormSubmit = {this.handleCreateFormSubmit} 
+          />
+        </div>
+      </div>
+    );
+  }
+
+
+
 
 
 
