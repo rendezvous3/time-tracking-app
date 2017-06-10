@@ -21,12 +21,23 @@ class TimersDashboard extends React.Component {
 			}
 		]
 	}
+	handleCreateFormSubmit = (timer) => {
+		this.createTimer(timer)
+	}
+	createTimer = (timer) => {
+		const t = helpers.newTimer(timer);
+		this.setState({
+			timers: this.state.timers.concat(t), 
+		})
+	}
   render() {
     return (
       <div className='ui three column centered grid'>
         <div className='column'>
           <EditableTimerList timers={this.state.timers} />
-          <ToggleableTimerForm />
+          <ToggleableTimerForm
+          	onFormSubmit = {this.handleCreateFormSubmit} 
+          />
         </div>
       </div>
     );
@@ -186,7 +197,7 @@ class TimerForm extends React.Component {
               <input 
               	type='text' 
               	value={this.state.project}
-              	onChange={this.handleTitleChange}
+              	onChange={this.handleProjectChange}
               />
             </div>
             <div className='ui two bottom attached buttons'>

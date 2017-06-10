@@ -520,6 +520,40 @@ handleSubmit = () => {
 // we’d ideally have some way to display an error message and re-open the form.
 
 
+// TimersDashboard
+
+// We’ve reached the top of the hierarchy, TimersDashboard. As this component will be responsible for
+// the data for the timers, it is here that we will define the logic for handling the events we’re capturing 
+// down at the leaf components.
+// The first event we’re concerned with is the submission of a form. When this happens,
+// either a new timer is being created or an existing one is being updated. 
+// We’ll use two separate functions to handle the two distinct events:
+
+// handleCreateFormSubmit() will handle creates and will be the function passed to Tog- gleableTimerForm
+// handleEditFormSubmit() will handle updates and will be the function passed to Editable- TimerList
+
+// Both functions travel down their respective component hierarchies until they reach TimerForm as the prop onFormSubmit().
+// Let’s start with handleCreateFormSubmit, which inserts a new timer into our timer list state:
+
+// We create the timer object with helpers.newTimer(). You can peek at the implementation inside of helpers.js.
+// We pass in the object that originated down in TimerForm. This object has title and project properties.
+// helpers.newTimer() returns an object with those title and project properties as well as a generated id.
+
+// The next line calls setState(), appending the new timer to our array of timers held under timers. 
+// We pass the whole state object to setState().
+
+// You might wonder: why separate handleCreateFormSubmit() and createTimer()? While not strictly required,
+// the idea here is that we have one function for handling the event (handleCreateFormSubmit()) 
+// and another for performing the operation of creating a timer (createTimer()).
+// This separation follows from the Single Responsibility Principle and enables us to call createTimer() 
+// from elsewhere if needed.
+
+// We’ve finished wiring up the create timer flow from the form down in TimerForm up to the state managed
+// in TimersDashboard. Save app.js and reload your browser. Toggle open the create form and create some 
+// new timers:
+
+
+
 
 
 
