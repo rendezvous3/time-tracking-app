@@ -748,10 +748,70 @@ class TimersDashboard extends React.Component {
 		onTrashClick={this.handleTrashClick}/>
 }
 
+// Adding timing functionality
 
+// This is why we’ve included the timer property runningSince. A timer is initialized with elapsed equal to 0.
+// When a user clicks “Start”, we do not increment elapsed. Instead, we just set runningSince to the start time.
+// We can then use the difference between the start time and the current time to render the time for the user.
+// When the user clicks “Stop”, the difference between the start time and the current time is added to elapsed. runningSince is set to null.
 
+// Therefore, at any given time, we can derive how long the timer has been running by taking Date.now()
+// - runningSince and adding it to the total accumulated time (elapsed). We’ll calculate this inside the Timer component.
 
+// For the app to truly feel like a running timer, we want React to constantly 
+// perform this operation and re-render the timers. But elapsed and runningSince will 
+// not be changing while the timer is running. So the one mechanism we’ve seen so far to trigger a render() 
+// call will not be sufficient.
+// Instead, we can use React’s forceUpdate() method.
+// This forces a React component to re-render. We can call it on an interval to yield the smooth appearance
+// of a live timer.
 
+// Adding a forceUpdate() interval to Timer
+
+// helpers.renderElapsedString() accepts an optional second argument, runningSince. 
+// It will add the delta of Date.now() - runningSince to elapsed and use the function millisecondsToHuman() 
+// to return a string formatted as HH:MM:SS.
+// We will establish an interval to run forceUpdate() after the component mounts:
+
+class Timer extends React.Component {
+  componentDidMount() {
+    this.forceUpdateInterval = setInterval(() => this.forceUpdate(), 50);
+}
+  componentWillUnmount() {
+    clearInterval(this.forceUpdateInterval);
+}
+  handleTrashClick = () => {
+    this.props.onTrashClick(this.props.id);
+};
+render() {
+    const elapsedString = helpers.renderElapsedString(
+      this.props.elapsed, this.props.runningSince
+);
+return (
+
+// n componentDidMount(), we use the JavaScript function setInterval().
+// This will invoke the function forceUpdate() once every 50 ms, causing the component to re-render.
+// We set the return of setInterval() to this.forceUpdateInterval.
+// In componentWillUnmount(), we use clearInterval() to stop the interval this.forceUpdateInterval.
+// componentWillUnmount() is called before a component is removed from the app. This will happen
+// if a timer is deleted. We want to ensure we do not continue calling forceUpdate() after the timer
+// has been removed from the page. React will throw errors.
+
+// setInterval() accepts two arguments. The first is the function you would like to call repeatedly. 
+// The second is the interval on which to call that function (in milliseconds).
+// setInterval() returns a unique interval ID. You can pass this interval ID to clearInterval() 
+// at any time to halt the interval.
+
+// You might ask: Wouldn’t it be more efficient if we did not continuously call forceUpdate()
+// on timers that are not running?
+// Indeed, we would save a few cycles. But it would not be worth the added code complexity.
+// React will call render() which performs some inexpensive operations in JavaScript. 
+// It will then compare this result to the previous call to render() and see that nothing has changed. 
+// It stops there — it won’t attempt any DOM manipulation.
+
+// The 50 ms interval was not derived scientifically. Selecting an interval that’s too high will make the timer
+// look unnatural. It would jump unevenly between values. Selecting an interval that’s too low would 
+// just be an unnecessary amount of work. A 50 ms interval looks good to humans and is ages in computerland.
 
 
 
