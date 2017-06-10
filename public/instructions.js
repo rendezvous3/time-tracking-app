@@ -465,7 +465,59 @@ render() {
 // We have submitText switch on id as opposed to title.
 // Using the id property to determine whether or not an object has been created is a more common practice.
 
-  
+// ToggleableTimerForm
+
+// Let’s chase the submit event from TimerForm as it bubbles up the component hierarchy.
+// First, we’ll modify ToggleableTimerForm. We need it to pass down two prop-functions to TimerForm,
+// onFormClose() and onFormSubmit():
+
+  // Inside ToggleableTimerForm
+handleFormOpen = () => {
+    this.setState({ isOpen: true });
+  };
+  handleFormClose = () => {
+    this.setState({ isOpen: false });
+};
+  handleFormSubmit = (timer) => {
+    this.props.onFormSubmit(timer);
+    this.setState({ isOpen: false });
+};
+  render() {
+    if (this.state.isOpen) {
+      return (
+        <TimerForm
+          onFormSubmit={this.handleFormSubmit}
+          onFormClose={this.handleFormClose}
+        />
+);
+} else {  
+
+// Looking first at the render() function, we can see we pass in the two functions as props. Functions
+// are just like any other prop.
+// Of most interest here is handleFormSubmit(). Remember, ToggleableTimerForm is not the manager of timer state.
+// TimerForm has an event it’s emitting, in this case the submission of a new timer.
+//  ToggleableTimerForm is just a proxy of this message. So, when the form is submitted,
+// it calls its own prop-function props.onFormSubmit()
+// We’ll eventually define this function in TimersDashboard.
+
+// handleFormSubmit() accepts the argument timer. Recall that in TimerForm this argument is 
+// an object containing the desired timer properties. We just pass that argument along here.	
+
+handleSubmit = () => {
+	this.props.onFormSubmit({
+		id: this.props.id,
+		title: this.state.title,
+		project: this.state.project,
+	});
+}
+
+// After invoking onFormSubmit(), handleFormSubmit() calls setState() to close its form.
+
+// Note that the result of onFormSubmit() will not impact whether or not the form is closed.
+// We invoke onFormSubmit(), which may eventually create an asynchronous call to a server.
+// Execution will continue before we hear back from the server which means setState() will be called.
+// If onFormSubmit() fails — such as if the server is temporarily unreachable — 
+// we’d ideally have some way to display an error message and re-open the form.
 
 
 
