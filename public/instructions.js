@@ -292,6 +292,32 @@ class EditableTimer extends React.Component {
 
 // Adding state to ToggleableTimerForm
 
+// We want to have the component manage the state isOpen. Because this state is isolated to this component,
+// let’s also add our app’s first bit of interactivity while we’re here.
+// As we explored at the end of the last chapter, we need to write this function as an arrow function
+// in order to ensure this inside the function is bound to the component. 
+// React will automatically bind class methods corresponding to the component API 
+// (like render and componentDidMount) to the component for us.
+
+// As a refresher, without the property initializer feature we’d write our custom component method like this:
+
+handleFormOpen() {
+ this.setState({ isOpen: true });
+}
+
+// Our next step would be to bind this method to the component inside the constructor, like this:
+
+constructor(props) { 
+	super(props);
+
+	this.handleFormOpen = this.handleFormOpen.bind(this); 
+}
+
+// Like the up-vote button in the last app, we use the onClick property on button to invoke the 
+// function handleFormOpen(). handleFormOpen() modifies the state, setting isOpen to true.
+// This causes the component to re-render. When render() is called this second time around,
+// this.state.isOpen is true and ToggleableTimerForm renders TimerForm. Neat.
+
 
 
 
