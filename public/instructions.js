@@ -552,6 +552,98 @@ handleSubmit = () => {
 // in TimersDashboard. Save app.js and reload your browser. Toggle open the create form and create some 
 // new timers:
 
+// Updating timers
+
+// We need to give the same treatment to the update timer flow. However, as you can see in the current state
+// of the app, we haven’t yet added the ability for a timer to be edited. So we don’t have a way to display
+// an edit form, which will be a prerequisite to submitting one.
+// To display an edit form, the user clicks on the edit icon on a Timer.
+// This should propagate an event up to EditableTimer and tell it to flip its child component, opening the form.
+
+// Adding editability to Timer
+
+// To notify our app that the user wants to edit a timer we need to add an onClick attribute to the span
+// tag of the edit button. We anticipate a prop-function, onEditClick():
+
+{/* Inside Timer.render() */}
+<div className='extra content'>
+  <span
+    className='right floated edit icon'
+    onClick={this.props.onEditClick}
+		>
+    <i className='edit icon' />
+  </span>
+  <span className='right floated trash icon'>
+    <i className='trash icon' />
+  </span>
+</div>
+
+// Updating EditableTimer
+
+// Now we’re prepared to update EditableTimer. Again, it will display either the TimerForm (if we’re
+// editing) or an individual Timer (if we’re not editing).
+// Now we’re prepared to update EditableTimer. Again, it will display either the TimerForm (if we’re
+// editing) or an individual Timer (if we’re not editing).
+// Let’s add event handlers for both possible child components. For TimerForm, we want to handle the
+// form being closed or submitted. For Timer, we want to handle the edit icon being pressed:
+
+// Inside EditableTimer
+  handleEditClick = () => {
+    this.openForm();
+};
+  handleFormClose = () => {
+    this.closeForm();
+};
+  handleSubmit = (timer) => {
+    this.props.onFormSubmit(timer);
+    this.closeForm();
+};
+  closeForm = () => {
+    this.setState({ editFormOpen: false });
+};
+
+openForm = () => {
+    this.setState({ editFormOpen: true });
+};
+
+// We pass these event handlers down as props:
+
+render() {
+    if (this.state.editFormOpen) {
+      return (
+        <TimerForm
+					id={this.props.id}
+					title={this.props.title}
+					project={this.props.project}
+					onFormSubmit={this.handleSubmit}
+					onFormClose={this.handleFormClose}
+		/> );
+    } else {
+      return (
+        <Timer
+					id={this.props.id}
+					title={this.props.title}
+					project={this.props.project}
+					elapsed={this.props.elapsed}
+					runningSince={this.props.runningSince}
+					onEditClick={this.handleEditClick}
+				/> );
+} }
+
+// Look a bit familiar? EditableTimer handles the same events emitted from TimerForm in a very similar manner
+// as ToggleableTimerForm. This makes sense. Both EditableTimer and Toggleable- TimerForm 
+// are just intermediaries between TimerForm and TimersDashboard. TimersDashboard is the one that defines 
+// the submit function handlers and assigns them to a given component tree.
+
+// Like ToggleableTimerForm, EditableTimer doesn’t do anything with the incoming timer.
+// In handleSubmit(), it just blindly passes this object along to its prop-function onFormSubmit().
+// It then closes the form with closeForm().
+
+// We pass along a new prop to Timer, onEditClick. The behavior for this function is defined in handleEditClick,
+// which modifies the state for EditableTimer, opening the form.
+
+// Updating EditableTimerList
+
 
 
 
