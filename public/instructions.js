@@ -24,7 +24,7 @@
 // Inside TimersDashboard are two child components: EditableTimerList and ToggleableTimerForm.
 // EditableTimerList contains two EditableTimer components.
 // The first of these has a Timer component as a child and the second a TimerForm.
-// hese bottom-level components — also known as leaf components — hold the majority of the page’s HTML.
+// these bottom-level components — also known as leaf components — hold the majority of the page’s HTML.
 // ToggleableTimerForm renders a TimerForm. Notice how the two forms on the page have different language
 // for their buttons, as the first is updating and the second is creating.
 
@@ -402,7 +402,70 @@ class TimerForm extends React.Component {
 // Our downward data pipeline, props, is assembled.
 // We’re ready — and perhaps a bit eager — to build out interactivity using inverse data flow.
 
+// Step 6: Add inverse data flow
 
+// As we saw in the last chapter, children communicate with parents by calling functions 
+// that are handed to them via props.
+// In the ProductHunt app, when an up-vote was clicked Product didn’t do any data management. 
+// It was not the owner of its state. Instead, it called a function given to it by ProductList,
+// passing in its id. ProductList was then able to manage state accordingly.
+
+
+// TimerForm needs to propagate create and update events (create while under Toggleable- 
+// TimerForm and update while under EditableTimer). Both events will eventually reach TimersDashboard.
+// Timer has a fair amount of behavior. It needs to handle delete and edit clicks,
+// as well as the start and stop timer logic.
+
+// TimerForm
+
+// TimerForm needs two event handlers:
+
+// When the form is submitted (creating or updating a timer)
+// When the “Cancel” button is clicked (closing the form)
+
+// TimerForm will receive two functions as props to handle each event. The parent component that uses
+// TimerForm is responsible for providing these functions:
+
+// props.onFormSubmit(): called when the form is submitted
+// props.onFormClose(): called when the “Cancel” button is clicked
+
+// As we’ll see soon, this empowers the parent component to dictate what the behavior should be when
+// these events occur
+
+ <div className='ui two bottom attached buttons'>
+	<button
+	  className='ui basic blue button'
+	  onClick={this.handleSubmit}
+	>
+	  {submitText}
+	</button>
+	<button
+	  className='ui basic red button'
+	  onClick={this.props.onFormClose}
+	>
+	  Cancel
+	</button>
+</div>
+
+handleSubmit = () => {
+    this.props.onFormSubmit({
+      id: this.props.id,
+      title: this.state.title,
+      project: this.state.project,
+}); };
+
+// handleSubmit() calls a yet-to-be-defined function, onFormSubmit(). It passes in a data object with
+// id, title, and project attributes. This means id will be undefined for creates, as no id exists yet. 
+// Before moving on, let’s make one last tweak to TimerForm:    
+
+render() {
+  const submitText = this.props.id ? 'Update' : 'Create';
+
+
+// We have submitText switch on id as opposed to title.
+// Using the id property to determine whether or not an object has been created is a more common practice.
+
+  
 
 
 
