@@ -319,6 +319,91 @@ constructor(props) {
 // this.state.isOpen is true and ToggleableTimerForm renders TimerForm. Neat.
 
 
+// Adding state to TimerForm
+
+// We mentioned earlier that TimerForm would manage state as it includes a form. In React, forms are
+// stateful. Recall that TimerForm includes two input fields, These input fields are modifiable by the user
+// In React, all modifications that are made to a component should be handled by React and kept in state.
+// This includes changes like the modification of an input field.
+// By having React manage all modifications, we guarantee that the visual component that the user 
+// is interacting with on the DOM matches the state of the React component behind the scenes.
+
+class TimerForm extends React.Component {
+  state = {
+    title: this.props.title || '',
+    project: this.props.project || '',
+};
+
+// Our state object has two properties, each corresponding to an input field that TimerForm manages.
+// We set the initial state of these properties to the values passed down via props.
+// If TimerForm is creating a new timer as opposed to editing an existing one, those props would be undefined.
+// In that case, we initialize both to a blank string ('').
+
+// defaultValue only sets the value of the input field for the initial render.
+// Instead of using defaultValue, we can connect our input fields directly to our component’s state using value.
+// We could do something like this:
+
+<div className='field'> 
+	<label>Title</label>
+	<input type='text'
+	    value={this.state.title}
+	/>
+</div>
+
+// With this change, our input fields would be driven by state. Whenever the state properties title 
+// or project change, our input fields would be updated to reflect the new value.
+
+// However, this misses a key ingredient: We don’t currently have any way for the user to modify this state.
+// The input field will start off in-sync with the component’s state. But the moment the 
+// user makes a modification, the input field will become out-of-sync with the component’s state
+
+// We can fix this by using React’s onChange attribute for input elements. Like onClick for button or a elements,
+// we can set onChange to a function. Whenever the input field is changed, React will invoke the function 
+// specified. Let’s set the onChange attributes on both input fields to functions we’ll define next:
+
+
+<div className='field'>
+	<label>Title</label>
+	<input 
+		type='text' 
+		value={this.state.title}
+		onChange={this.handleTitleChange}
+	/>
+	</div>
+<div className='field'>
+	<label>Project</label>
+	<input 
+		type='text' 
+		value={this.state.project}
+		onChange={this.handleTitleChange}
+	/>
+</div>
+
+// The functions handleTitleChange and handleProjectChange will both modify their respective
+// properties in state. Here’s what they look like:
+// When React invokes the function passed to onChange, it invokes the function with an event object.
+// We call this argument e. The event object includes the updated value of the field under target.value.
+// We update the state to the new value of the input field
+
+// Using a combination of state, the value attribute, and the onChange attribute is the canonical 
+// method we use to write form elements in React. We explore forms in depth in the chapter “Forms.” 
+// We explore this topic specifically in the section “Uncontrolled vs. Controlled Components.”
+
+// To recap, here’s an example of the lifecycle of TimerForm:
+
+// 1. On the page is a timer with the title “Mow the lawn.”
+// 2. The user toggles open the edit form for this timer, mounting TimerForm to the page.
+// 3. TimerForm initializes the state property title to the string "Mow the lawn"
+// 4. The user modifies the input field, changing it to the value "Cut the grass".
+// 5. With every keystroke, React invokes handleTitleChange. The internal state of title is kept
+// in-sync with what the user sees on the page.
+
+// With TimerForm refactored, we’ve finished establishing our stateful data inside our elected components.
+// Our downward data pipeline, props, is assembled.
+// We’re ready — and perhaps a bit eager — to build out interactivity using inverse data flow.
+
+
+
 
 
 
