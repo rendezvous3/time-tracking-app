@@ -644,6 +644,67 @@ render() {
 
 // Updating EditableTimerList
 
+// Moving up a level, we make a one-line addition to EditableTimerList to send the submit function
+// from TimersDashboard to each EditableTimer:
+
+// Moving up a level, we make a one-line addition to EditableTimerList to send the submit function
+// from TimersDashboard to each EditableTimer:
+
+// Inside EditableTimerList
+    const timers = this.props.timers.map((timer) => (
+<EditableTimer
+	key={timer.id}
+	id={timer.id}
+	title={timer.title}
+	project={timer.project} 
+	elapsed={timer.elapsed} 
+	runningSince={timer.runningSince}
+	onFormSubmit={this.props.onFormSubmit}
+/> ));
+
+// Defining onEditFormSubmit() in TimersDashboard
+
+// For creates, we have a function that creates a new timer object with the specified attributes and we
+// append this new object to the end of the timers array in the state.
+// For updates, we need to hunt through the timers array until we find the timer object that is being updated.
+// As mentioned in the last chapter, the state object cannot be updated directly. We have to use setState().
+// Therefore, we’ll use map() to traverse the array of timer objects. 
+// If the timer’s id matches that of the form submitted,
+// we’ll return a new object that contains the timer with the updated attributes.
+// Otherwise we’ll just return the original timer. This new array of timer objects will be passed to setState():
+
+// Inside TimersDashboard
+handleEditFormSubmit = (attrs) => {
+    this.updateTimer(attrs);
+};
+  createTimer = (timer) => {
+    const t = helpers.newTimer(timer);
+    this.setState({
+      timers: this.state.timers.concat(t),
+    });
+};
+  updateTimer = (attrs) => {
+    this.setState({
+      timers: this.state.timers.map((timer) => {
+        if (timer.id === attrs.id) {
+          return Object.assign({}, timer, {
+            title: attrs.title,
+            project: attrs.project,
+});
+} else {
+          return timer;
+        }
+}), });
+};    
+
+// We pass this down as a prop inside render():
+
+{ /* Inside TimersDashboard.render() */}
+          <EditableTimerList
+            timers={this.state.timers}
+            onFormSubmit={this.handleEditFormSubmit}
+/>
+
 
 
 
