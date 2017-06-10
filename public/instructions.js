@@ -218,7 +218,79 @@ return (
         isOpen={true}
       />
 
+// Looping through our state in EditableTimerList
 
+class EditableTimerList extends React.Component {
+  render() {
+  	const timers = this.props.timers.map((timer) => (
+			<EditableTimer
+				key = {timer.id}
+				id = {timer.id}
+		    title={timer.title}
+		    project={timer.project}
+		    elapsed={timer.elapsed}
+		    runningSince={timer.runningSince}
+		    editFormOpen={false}
+	  	/>
+		));
+    return (
+      <div id='timers'>
+      	{timers}
+      </div>
+    );
+  }
+}
+
+// Props vs. state
+
+// Remember, props are state’s immutable accomplice. What existed as mutable state in Timers-
+// Dashboard is passed down as immutable props to EditableTimerList.
+// props act as its one-way data pipeline. State is managed in some select parent components
+// and then that data flows down through children as props.
+// If state is updated, the component managing that state re-renders by calling render().
+// This, in turn, causes any of its children to re-render as well. And the children of those children.
+// And on and on down the chain.
+
+// Adding state to EditableTimer
+
+// In the static version of our app, EditableTimer relied on editFormOpen as a prop to be passed down
+// from the parent. We decided that this state could actually live here in the component itself.
+// We’ll set the initial value of editFormOpen to false, which means that the form starts off as closed.
+// We’ll also pass the id property down the chain:
+
+class EditableTimer extends React.Component {
+	state = {
+		editFormOpen: false,
+	}
+  render() {
+    if (this.state.editFormOpen) {
+      return (
+        <TimerForm
+        	id={this.props.id}
+          title={this.props.title}
+          project={this.props.project}
+        />
+      );
+    } else {
+      return (
+        <Timer
+        	id={this.props.id}
+          title={this.props.title}
+          project={this.props.project}
+          elapsed={this.props.elapsed}
+          runningSince={this.props.runningSince}
+        />
+      );
+    }
+  }
+}
+
+// Timer remains stateless
+
+// If you look at Timer, you’ll see that it does not need to be modified. It has been using exclusively
+// props and is so far unaffected by our refactor
+
+// Adding state to ToggleableTimerForm
 
 
 
