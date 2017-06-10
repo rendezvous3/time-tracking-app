@@ -705,6 +705,49 @@ handleEditFormSubmit = (attrs) => {
             onFormSubmit={this.handleEditFormSubmit}
 />
 
+// The rest of our work resides within the timer. We need to:
+// • Wire up the trash button (deleting a timer)
+// • Implement the start/stop buttons and the timing logic itself
+
+// At that point, we’ll have a complete server-less solution.
+
+// Deleting timers
+// Adding the event handler to Timer
+
+class Timer extends React.Component {
+  handleTrashClick = () => {
+    this.props.onTrashClick(this.props.id);
+};
+
+<span
+    className='right floated trash icon'
+    onClick={this.handleTrashClick}
+>
+
+class EditableTimer extends React.Component {
+	<Timer 
+		onTrashClick={this.props.onTrashClick}/>
+}
+
+class EditableTimerList extends React.Component {
+	<EditableTimer 
+		onTrashClick={this.props.onTrashClick}/>
+}
+
+class TimersDashboard extends React.Component {
+	handleTrashClick = (timerId) => {
+		this.deleteTimer(timerId);
+	}
+	deleteTimer = (timerId) => {
+		this.setState({
+			timers: this.state.timers.filter(t => t.id !== timerId),
+			});
+	}
+
+	<EditableTimerList
+		onTrashClick={this.handleTrashClick}/>
+}
+
 
 
 
