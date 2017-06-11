@@ -937,6 +937,185 @@ render() {
   }
 
 
+// Methodology review
+
+// 1. Break the app into components
+
+// We mapped out the component structure of our app by examining the app’s working UI.
+// We then applied the single-responsibility principle to break components down so that
+// each had minimal viable functionality.
+
+// 2. Build a static version of the app
+// Our bottom-level (user-visible) components rendered HTML based on static props, passed
+// down from parents.
+
+// 3. Determine what should be stateful
+
+// We used a series of questions to deduce what data should be stateful. This data was represented
+// in our static app as props.
+
+// 4. Determine in which component each piece of state should live
+
+// We used another series of questions to determine which component should own each piece of state.
+// TimersDashboard owned timer state data and ToggleableTimerForm and EditableTimer both held state 
+// pertaining to whether or not to render a TimerForm.
+
+// 5. Hard-code initial states
+
+// We then initialized state-owners’ state properties with hard-coded values.
+
+// Add inverse data flow
+
+// We added interactivity by decorating buttons with onClick handlers.
+// These called functions that were passed in as props down the hierarchy from whichever
+// component owned the relevant state being manipulated.
+
+// The final step is 7. Add server communication. We’ll tackle this in the next chapter.
+
+// Components & Servers
+
+// The Server API
+
+// Our ultimate goal in this chapter is to replicate state changes on the server
+// We’re not going to move all state management exclusively to the server.
+// the server will maintain its state (in data.json)
+// and React will maintain its state (in this case, within this.state in TimersDashboard).
+// We’ll demonstrate later why keeping state in both places is desirable.
+
+// If we perform an operation on the React (“client”) state that we want to be persisted,
+// then we also need to notify the server of that state change. 
+
+// • A timer is updated
+// • A timer is deleted
+// • A timer is started
+// • A timer is stopped
+
+// We’ll have just one read operation: requesting all of the timers from the server.
+// http://www.andrewhavens.com/posts/20/beginners-guide-to-creating-a-rest-api/
+
+// text/html endpoint
+// Note that React never makes a request to the server at this path.
+// This is just used by the browser to load the app. React only communicates with the JSON endpoints.
+
+// JSON endpoints
+
+// data.json is a JSON document. As touched on in the last chapter,
+// JSON is a format for storing human-readable data objects. We can serialize JavaScript objects into JSON.
+// This enables JavaScript objects to be stored in text files and transported over the network.
+// data.json contains an array of objects. While not strictly JavaScript, the data in this array can be readily loaded into JavaScript.
+// In server.js, we see lines like this:
+
+fs.readFile(DATA_FILE, function(err, data) { 
+	const timers = JSON.parse(data);
+	// ...
+});
+
+// data is a string, the JSON. JSON.parse() converts this string into an actual JavaScript array of
+// objects.
+
+// GET /api/timers
+// Returns a list of all timers.
+
+// POST /api/timers
+// Accepts a JSON body with title, project, and id attributes. Will insert a new timer object into its store.
+
+// POST /api/timers/start
+
+// Accepts a JSON body with the attribute id and start (a timestamp).
+// Hunts through its store and finds the timer with the matching id. Sets its runningSince to start.
+
+
+// POST /api/timers/stop
+
+// Accepts a JSON body with the attribute id and stop (a timestamp). 
+// Hunts through its store and finds the timer with the matching id.
+// Updates elapsed according to how long the timer has been running (stop - runningSince).
+// Sets runningSince to null.
+
+// PUT /api/timers
+
+// Accepts a JSON body with the attributes id and title and/or project. 
+// Hunts through its store and finds the timer with the matching id.
+// Updates title and/or project to new attributes.
+
+// DELETE /api/timers
+// Accepts a JSON body with the attribute id. 
+// Hunts through its store and deletes the timer with the matching id.
+
+// curl -X GET localhost:3000/api/timers
+// http://localhost:3000/api/timers
+// The -X flag specifies which HTTP method to use.
+
+// You can start one of the timers by issuing a PUT request to the /api/timers/start endpoint. 
+// We need to send along the id of one of the timers and a start timestamp:
+
+// curl -X POST \
+// -H 'Content-Type: application/json' \
+// -d '{"start":1456468632194,"id":"a73c1d19-f32d-4aff-b470-cea4e792406a"}' \
+// localhost:3000/api/timers/start
+
+// The -H flag sets a header for our HTTP request, Content-Type.
+// We’re informing the server that the body of the request is JSON.
+
+// The -d flag sets the body of our request. Inside of single-quotes '' is the JSON data.
+// Note that the backslash \ above is only used to break the command out over multiple lines for readability.
+
+// If you want to parse and process JSON on the command line, we highly recommend the tool “jq.”
+// You can pipe curl responses directly into jq to have the response pretty-formatted:
+// curl -X GET localhost:3000/api/timers | jq '.'
+
+// You can also do some powerful manipulation of JSON, like iterating over all objects in the response
+// and returning a particular field. In this example, we extract just the id property of every object
+// in an array:
+
+// curl -X GET localhost:3000/api/timers | jq '.[] | { id }'
+
+// You can download jq here: https://stedolan.github.io/jq/a.
+
+// Loading state from the server
+// Right now, we set initial state in TimersDashboard by hardcoding a JavaScript object, an array of timers. 
+// Let’s modify this function to load data from the server instead.
+
+// We’ve written the client library that your React app will use to interact with the server, client.
+// The library is defined in public/js/client.js. We’ll use it first and then take a look at how it works 
+// in the next section.
+
+// The GET /api/timers endpoint provides a list of all timers, as represented in data.json.
+// We can use client.getTimers() to call this endpoint from our React app. We’ll do this to “hydrate” 
+// the state kept by TimersDashboard.
+
+// When we call client.getTimers(), the network request is made asynchronously. 
+// The function call itself is not going to return anything useful:
+
+// // Wrong
+// `getTimers()` does not return the list of timers 
+const timers = client.getTimers();
+
+
+// Instead, we can pass getTimers() a success function. getTimers() will invoke that function
+// after it hears back from the server if the server successfully returned a result.
+// getTimers() will invoke the function with a single argument, the list of timers returned by the server:
+
+// Passing `getTimers()` a success function
+client.getTimers((serverTimers) => (
+// do something with the array of timers, `serverTimers`
+));
+
+// client.getTimers() uses the Fetch API, which we cover in the next section. For our purposes,
+// the important thing to know is that when getTimers() is invoked,
+// it fires off the request to the server and then returns control flow immediately.
+// The execution of our program does not wait for the server’s response.
+// This is why getTimers() is called an asynchronous function.
+
+// The success function we pass to getTimers() is called a callback. We’re saying:
+// “When you finally hear back from the server, if it’s a successful response, invoke this function.”
+// This asynchronous paradigm ensures that execution of our JavaScript is not blocked by I/O.
+
+
+// We’ll initialize our component’s state with the timers property set to a blank array.
+// This will allow all components to mount and perform their initial render.
+// Then, we can populate the app by making a request to the server and setting the state:
+
 
 
 
